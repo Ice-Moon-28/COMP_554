@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Build configurations for the project
-build --action_env=BAZEL_CXXOPTS="-std=c++17"
-build --action_env=CC="clang" 
+"""Call the first level dependent repos to load their dependencies."""
 
-# Disable warnings we don't care about or that generally have a low signal/noise
-# ratio.
+load("@com_google_mpact-riscv//:repos.bzl", "mpact_riscv_repos")
 
-build --copt=-Wno-unused-function --cxxopt="-std=c++17"
-build --host_copt=-Wno-unused-function --host_cxxopt="-std=c++17"
-# TODO: migrate all dependencies from WORKSPACE to MODULE.bazel
-# https://github.com/protocolbuffers/protobuf/issues/14313
-common --noenable_bzlmod
+def mpact_sim_codelabs_riscv_repos():
+    """ Extra dependencies to finish setting up repositories"""
+
+    mpact_riscv_repos()

@@ -29,6 +29,7 @@
 #include "mpact/sim/util/memory/memory_watcher.h"
 #include "other/riscv_simple_state.h"
 #include "riscv/riscv32_htif_semihost.h"
+#include "riscv/riscv_action_point.h"
 #include "riscv/riscv_breakpoint.h"
 #include "riscv/riscv_register.h"
 #include "riscv_full_decoder/solution/riscv32_decoder.h"
@@ -40,6 +41,7 @@ namespace codelab {
 
 using riscv::RiscV32HtifSemiHost;
 using riscv::RiscVBreakpointManager;
+using riscv::RiscVActionPointManager;
 using riscv::RiscVState;
 using riscv::RV32Register;
 
@@ -49,7 +51,7 @@ using riscv::RV32Register;
 class RV32ITop : public generic::Component, public generic::CoreDebugInterface {
  public:
   using RunStatus = generic::CoreDebugInterface::RunStatus;
-  using HaltReason = generic::CoreDebugInterface::HaltReason;
+  using HaltReasonValueType = generic::CoreDebugInterface::HaltReasonValueType;
   using SemiHostAddresses = RiscV32HtifSemiHost::SemiHostAddresses;
 
   explicit RV32ITop(std::string name);
@@ -62,11 +64,12 @@ class RV32ITop : public generic::Component, public generic::CoreDebugInterface {
   absl::Status Wait() override;
 
   absl::StatusOr<RunStatus> GetRunStatus() override;
-  absl::StatusOr<HaltReason> GetLastHaltReason() override;
+  absl::StatusOr<HaltReasonValueType> GetLastHaltReason() override;
 
   absl::StatusOr<uint64_t> ReadRegister(const std::string &name) override;
   absl::Status WriteRegister(const std::string &name, uint64_t value) override;
-
+  absl::StatusOr<generic::DataBuffer *> GetRegisterDataBuffer(
+      const std::string &name) override;
   // Read and Write memory methods bypass any semihosting.
   absl::StatusOr<size_t> ReadMemory(uint64_t address, void *buf,
                                     size_t length) override;
@@ -106,6 +109,8 @@ class RV32ITop : public generic::Component, public generic::CoreDebugInterface {
   RiscVState *state_;
   // Semihosting class.
   RiscV32HtifSemiHost *rv32_semihost_ = nullptr;
+  // Action point manager.
+  RiscVActionPointManager *rv_ap_manager_ = nullptr;
   // Breakpoint manager.
   RiscVBreakpointManager *rv_bp_manager_ = nullptr;
   // The pc register instance.

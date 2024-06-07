@@ -14,7 +14,7 @@
 
 # Build file for the bin_decoder part of the RiscV instruction decoder codelab.
 
-load("@mpact-sim//mpact/sim/decoder:mpact_sim_isa.bzl", "mpact_bin_fmt_decoder")
+load("@com_google_mpact-sim//mpact/sim/decoder:mpact_sim_isa.bzl", "mpact_bin_fmt_decoder")
 
 package(
     default_applicable_licenses = ["//:license"],

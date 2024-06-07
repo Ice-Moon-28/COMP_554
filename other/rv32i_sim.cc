@@ -131,7 +131,8 @@ int main(int argc, char **argv) {
   // Determine if this is being run interactively or as a batch job.
   bool interactive = absl::GetFlag(FLAGS_i) || absl::GetFlag(FLAGS_interactive);
   if (interactive) {
-    mpact::sim::riscv::DebugCommandShell cmd_shell({{&rv32i_top, &elf_loader}});
+    mpact::sim::riscv::DebugCommandShell cmd_shell;
+    cmd_shell.AddCore({&rv32i_top, [&elf_loader]() { return &elf_loader;}});
     cmd_shell.Run(std::cin, std::cout);
   } else {
     std::cerr << "Starting simulation\n";

@@ -14,7 +14,7 @@
 
 # Build file for the isa_decoder part of the RiscV instruction decoder codelab.
 
-load("@mpact-sim//mpact/sim/decoder:mpact_sim_isa.bzl", "mpact_isa_decoder")
+load("@com_google_mpact-sim//mpact/sim/decoder:mpact_sim_isa.bzl", "mpact_isa_decoder")
 
 package(
     default_applicable_licenses = ["//:license"],

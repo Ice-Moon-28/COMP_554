@@ -25,13 +25,17 @@
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "mpact/sim/generic/data_buffer.h"
+#include "mpact/sim/generic/type_helpers.h"
 #include "riscv/riscv32_htif_semihost.h"
+#include "riscv/riscv_action_point.h"
 #include "riscv/riscv_breakpoint.h"
 
 namespace mpact {
 namespace sim {
 namespace codelab {
 
+
+using ::mpact::sim::generic::operator*;  // NOLINT: used below (clang error).
 using generic::DataBuffer;
 using riscv::RiscVXlen;
 
@@ -61,9 +65,13 @@ RV32ITop::RV32ITop(std::string name)
   // Register instruction counter.
   CHECK_OK(AddCounter(&counter_num_instructions_))
       << "Failed to register counter";
-  rv_bp_manager_ = new RiscVBreakpointManager(
+
+  rv_ap_manager_ = new RiscVActionPointManager(
       memory_,
       absl::bind_front(&generic::DecodeCache::Invalidate, rv32_decode_cache_));
+  rv_bp_manager_ = new RiscVBreakpointManager(
+      rv_ap_manager_,
+      [this](HaltReason halt_reason) { RequestHalt(halt_reason, nullptr); });
   // Set the software breakpoint callback.
   state_->AddEbreakHandler([this](const Instruction *inst) -> bool {
     // If there is a breakpoint, handle it and return true to signal that
@@ -93,6 +101,7 @@ RV32ITop::~RV32ITop() {
 
   delete rv32_semihost_;
   delete rv_bp_manager_;
+  delete rv_ap_manager_;
   delete rv32_decode_cache_;
   delete rv32_decoder_;
   delete state_;
@@ -264,8 +273,8 @@ absl::StatusOr<RV32ITop::RunStatus> RV32ITop::GetRunStatus() {
   return run_status_;
 }
 
-absl::StatusOr<RV32ITop::HaltReason> RV32ITop::GetLastHaltReason() {
-  return halt_reason_;
+absl::StatusOr<RV32ITop::HaltReasonValueType> RV32ITop::GetLastHaltReason() {
+  return *halt_reason_;
 }
 
 absl::StatusOr<uint64_t> RV32ITop::ReadRegister(const std::string &name) {
@@ -341,6 +350,21 @@ absl::Status RV32ITop::WriteRegister(const std::string &name, uint64_t value) {
       return absl::InternalError("Register size is not 1, 2, 4, or 8 bytes");
   }
   return absl::OkStatus();
+}
+
+absl::StatusOr<DataBuffer *> RV32ITop::GetRegisterDataBuffer(
+    const std::string &name) {
+  // The registers aren't protected by a mutex, so let's not access them while
+  // the simulator is running.
+  if (run_status_ != RunStatus::kHalted) {
+    return absl::FailedPreconditionError(
+        "GetRegisterDataBuffer: Core must be halted");
+  }
+  auto iter = state_->registers()->find(name);
+  if (iter == state_->registers()->end()) {
+    return absl::NotFoundError(absl::StrCat("Register '", name, "' not found"));
+  }
+  return iter->second->data_buffer();
 }
 
 absl::StatusOr<size_t> RV32ITop::ReadMemory(uint64_t address, void *buffer,

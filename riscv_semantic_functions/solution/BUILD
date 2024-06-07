@@ -32,9 +32,9 @@ cc_library(
     copts = ["-O3"],
     deps = [
         "//other:riscv_simple_state",
-        "@mpact-sim//mpact/sim/generic:arch_state",
-        "@mpact-sim//mpact/sim/generic:core",
-        "@mpact-sim//mpact/sim/generic:instruction",
-        "@mpact-sim//mpact/sim/util/memory",
+        "@com_google_mpact-sim//mpact/sim/generic:arch_state",
+        "@com_google_mpact-sim//mpact/sim/generic:core",
+        "@com_google_mpact-sim//mpact/sim/generic:instruction",
+        "@com_google_mpact-sim//mpact/sim/util/memory",
     ],
 )
