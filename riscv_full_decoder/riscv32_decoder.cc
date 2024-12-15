@@ -14,24 +14,43 @@
 
 #include "riscv_full_decoder/riscv32_decoder.h"
 
-using ::mpact::sim::generic::Instruction;
-using ::mpact::sim::riscv::RiscVState;
-using ::mpact::sim::util::MemoryInterface;
-
 namespace mpact {
 namespace sim {
 namespace codelab {
 
-// Exercise 1 - Step 3.
+using ::mpact::sim::riscv::RiscVState;
+using ::mpact::sim::util::MemoryInterface;
 
-// Constructor.
-// RiscV32Decoder::RiscV32Decoder(RiscVState *state, MemoryInterface *memory) {}
+RiscV32Decoder::RiscV32Decoder(RiscVState *state, MemoryInterface *memory)
+    : state_(state), memory_(memory) {
+  // Allocate the isa factory class, the top level isa decoder instance, and
+  // the encoding parser.
+  riscv_isa_factory_ = new RiscV32IsaFactory();
+  riscv_isa_ = new RiscV32IInstructionSet(state, riscv_isa_factory_);
+  riscv_encoding_ = new RiscV32IEncoding(state);
+  // Need a data buffer to load instructions from memory. Allocate a single
+  // buffer that can be reused for each instruction word.
+  inst_db_ = state_->db_factory()->Allocate<uint32_t>(1);
+}
 
-// Destructor.
-// RiscV32Decoder::~RiscV32Decoder() {}
+RiscV32Decoder::~RiscV32Decoder() {
+  inst_db_->DecRef();
+  delete riscv_isa_;
+  delete riscv_isa_factory_;
+  delete riscv_encoding_;
+}
 
-// DecodeInstruction method.
-// Instruction *RiscV32Decoder::DecodeInstruction(uint64_t address) {}
+generic::Instruction *RiscV32Decoder::DecodeInstruction(uint64_t address) {
+  // Read the instruction word from memory and parse it in the encoding parser.
+  memory_->Load(address, inst_db_, nullptr, nullptr);
+  uint32_t iword = inst_db_->Get<uint32_t>(0);
+  riscv_encoding_->ParseInstruction(iword);
+
+  // Call the isa decoder to obtain a new instruction object for the instruction
+  // word that was parsed above.
+  auto *instruction = riscv_isa_->Decode(address, riscv_encoding_);
+  return instruction;
+}
 
 }  // namespace codelab
 }  // namespace sim

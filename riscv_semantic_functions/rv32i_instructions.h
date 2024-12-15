@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MPACT_SIM_CODELABS_SEMANTIC_FUNCTIONS_RV32I_INSTRUCTIONS_H_
-#define MPACT_SIM_CODELABS_SEMANTIC_FUNCTIONS_RV32I_INSTRUCTIONS_H_
+#ifndef MPACT_SIM_CODELABS_SEMANTIC_FUNCTIONS_SOLUTION_RV32I_INSTRUCTIONS_H_
+#define MPACT_SIM_CODELABS_SEMANTIC_FUNCTIONS_SOLUTION_RV32I_INSTRUCTIONS_H_
 
 #include "mpact/sim/generic/instruction.h"
 
@@ -37,12 +37,23 @@ using ::mpact::sim::generic::Instruction;
 // immediate. Destination operand 0 refers to the register specified in rd.
 
 // Semantic functions for Exercise 2.
+void RV32IAdd(Instruction *instruction);
+void RV32IAnd(Instruction *instruction);
+void RV32IOr(Instruction *instruction);
+void RV32ISll(Instruction *instruction);
+void RV32ISltu(Instruction *instruction);
+void RV32ISub(Instruction *instruction);
+void RV32ISra(Instruction *instruction);
+void RV32ISrl(Instruction *instruction);
+void RV32IXor(Instruction *instruction);
 // End semantic functions for Exercise 2.
 
 // For the following, source operand 0 refers to the 20-bit immediate value,
 // already shifted left by 12 to form a 32-bit immediate.
 
 // Semantic functions for Exercise 3.
+void RV32ILui(Instruction *instruction);
+void RV32IAuipc(Instruction *instruction);
 // End semantic functions for Exercise 3.
 
 // For the following branch instructions. Source operand 0 refers to the
@@ -51,6 +62,12 @@ using ::mpact::sim::generic::Instruction;
 // operand 0 refers to the pc destination operand.
 
 // Semantic functions for Exercise 4 - branches.
+void RV32IBeq(Instruction *instruction);
+void RV32IBge(Instruction *instruction);
+void RV32IBgeu(Instruction *instruction);
+void RV32IBlt(Instruction *instruction);
+void RV32IBltu(Instruction *instruction);
+void RV32IBne(Instruction *instruction);
 // End semantic functions for Exercise 4 - branches.
 
 // Source operand 0 contains the immediate value. Destination operand 0 refers
@@ -58,6 +75,7 @@ using ::mpact::sim::generic::Instruction;
 // link register specified in rd.
 
 // Semantic function for Exercise 4 - jal.
+void RV32IJal(Instruction *instruction);
 // End semantic function for Exercise 4 - jal.
 
 // Source operand 0 refers to the base registers specified by rs1, source
@@ -66,6 +84,7 @@ using ::mpact::sim::generic::Instruction;
 // link register specified in rd.
 
 // Semantic function for Exercise 4 - jalr.
+void RV32IJalr(Instruction *instruction);
 // End semantic functions for Exercise 4 - jalr.
 
 // For each store instruction semantic function, source operand 0 is the base
@@ -73,6 +92,9 @@ using ::mpact::sim::generic::Instruction;
 // to be stored referred to by rs2.
 
 // Semantic functions for Exercise 5.
+void RV32ISb(Instruction *instruction);
+void RV32ISh(Instruction *instruction);
+void RV32ISw(Instruction *instruction);
 // End semantic functions for Exercise 5.
 
 // Each of the load instructions are modeled by a pair of semantic instruction
@@ -85,6 +107,16 @@ using ::mpact::sim::generic::Instruction;
 // operand.
 
 // Semantic functions for Exercise 6.
+void RV32ILb(Instruction *instruction);
+void RV32ILbChild(Instruction *instruction);
+void RV32ILbu(Instruction *instruction);
+void RV32ILbuChild(Instruction *instruction);
+void RV32ILh(Instruction *instruction);
+void RV32ILhChild(Instruction *instruction);
+void RV32ILhu(Instruction *instruction);
+void RV32ILhuChild(Instruction *instruction);
+void RV32ILw(Instruction *instruction);
+void RV32ILwChild(Instruction *instruction);
 // End semantic functions for Exercise 6.
 
 // Exercises End.
@@ -103,4 +135,4 @@ void RV32IllegalInstruction(Instruction *inst);
 }  // namespace sim
 }  // namespace mpact
 
-#endif  // MPACT_SIM_CODELABS_SEMANTIC_FUNCTIONS_RV32I_INSTRUCTIONS_H_
+#endif  // MPACT_SIM_CODELABS_SEMANTIC_FUNCTIONS_SOLUTION_RV32I_INSTRUCTIONS_H_

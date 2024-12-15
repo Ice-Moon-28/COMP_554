@@ -14,34 +14,60 @@
  * limitations under the License.
  */
 
-#ifndef MPACT_SIM_CODELABS_FULL_DECODER_RISCV32_DECODER_H_
-#define MPACT_SIM_CODELABS_FULL_DECODER_RISCV32_DECODER_H_
+#ifndef MPACT_SIM_CODELABS_RISCV_FULL_DECODER_SOLUTION_RISCV32_DECODER_H_
+#define MPACT_SIM_CODELABS_RISCV_FULL_DECODER_SOLUTION_RISCV32_DECODER_H_
 
 #include <memory>
 
 #include "mpact/sim/generic/arch_state.h"
 #include "mpact/sim/generic/decoder_interface.h"
 #include "mpact/sim/generic/instruction.h"
-#include "mpact/sim/generic/program_error.h"
 #include "mpact/sim/util/memory/memory_interface.h"
 #include "other/riscv_simple_state.h"
-#include "riscv_full_decoder/riscv32i_encoding.h"
+#include "riscv_full_decoder/solution/riscv32i_encoding.h"
 #include "riscv_isa_decoder/solution/riscv32i_decoder.h"
 
 namespace mpact {
 namespace sim {
 namespace codelab {
 
-using riscv::RiscVState;
+// This is the factory class needed by the generated decoder. It is responsible
+// for creating the decoder for each slot instance. Since the riscv architecture
+// only has a single slot, it's a pretty simple class.
+class RiscV32IsaFactory : public RiscV32IInstructionSetFactory {
+ public:
+  std::unique_ptr<Riscv32Slot> CreateRiscv32Slot(ArchState *state) override {
+    return std::make_unique<Riscv32Slot>(state);
+  }
+};
 
-// Exercise 1 - step 1. Fill in the factory class definition.
-class RiscV32IsaFactory;
+// This class implements the generic DecoderInterface and provides a bridge
+// to the (isa specific) generated decoder classes.
+class RiscV32Decoder : public generic::DecoderInterface {
+ public:
+  using SlotEnum = SlotEnum;
+  using OpcodeEnum = OpcodeEnum;
 
-// Exercise 1 - step 2. Fill in the decoder class definition.
-class RiscV32Decoder;
+  RiscV32Decoder(riscv::RiscVState *state, util::MemoryInterface *memory);
+  RiscV32Decoder() = delete;
+  ~RiscV32Decoder() override;
+
+  // This will always return a valid instruction that can be executed. In the
+  // case of a decode error, the semantic function in the instruction object
+  // instance will raise an internal simulator error when executed.
+  generic::Instruction *DecodeInstruction(uint64_t address) override;
+
+ private:
+  riscv::RiscVState *state_;
+  util::MemoryInterface *memory_;
+  RiscV32IsaFactory *riscv_isa_factory_;
+  RiscV32IEncoding *riscv_encoding_;
+  RiscV32IInstructionSet *riscv_isa_;
+  generic::DataBuffer *inst_db_;
+};
 
 }  // namespace codelab
 }  // namespace sim
 }  // namespace mpact
 
-#endif  // MPACT_SIM_CODELABS_FULL_DECODER_RISCV32_DECODER_H_
+#endif  // MPACT_SIM_CODELABS_RISCV_FULL_DECODER_SOLUTION_RISCV32_DECODER_H_

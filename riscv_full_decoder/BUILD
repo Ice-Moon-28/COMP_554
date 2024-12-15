@@ -31,9 +31,9 @@ cc_library(
     ],
     deps = [
         "//other:riscv_simple_state",
-        "//riscv_bin_decoder/solution:riscv32i_bin_fmt",
-        "//riscv_isa_decoder/solution:riscv32i_isa",
-        "//riscv_semantic_functions/solution:riscv32i",
+        "//riscv_bin_decoder:riscv32i_bin_fmt",
+        "//riscv_isa_decoder:riscv32i_isa",
+        "//riscv_semantic_functions:riscv32i",
         "@com_google_mpact-sim//mpact/sim/generic:arch_state",
         "@com_google_mpact-sim//mpact/sim/generic:core",
         "@com_google_mpact-sim//mpact/sim/generic:instruction",
